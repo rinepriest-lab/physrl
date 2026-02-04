@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Project specific
+results/
+*.npy
+
+# Virtual environments
+.venv/
+venv/
