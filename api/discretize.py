@@ -3,13 +3,37 @@
 from http.server import BaseHTTPRequestHandler
 import json
 from urllib.parse import urlparse, parse_qs
-import sys
-import os
+from typing import Tuple
+import numpy as np
 
-# src 디렉토리를 path에 추가
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from discretizer import StateDiscretizer
+class StateDiscretizer:
+    """CartPole 환경의 연속 상태 공간을 이산 상태 공간으로 변환하는 클래스."""
+
+    def __init__(self, n_bins: int = 20) -> None:
+        self.n_bins = n_bins
+        self.bounds = np.array([
+            [-4.8, 4.8],
+            [-3.0, 3.0],
+            [-0.418, 0.418],
+            [-3.0, 3.0]
+        ])
+        self.bins = [
+            np.linspace(low, high, n_bins + 1)[1:-1]
+            for low, high in self.bounds
+        ]
+
+    def discretize(self, state: np.ndarray) -> Tuple[int, int, int, int]:
+        discretized = []
+        for i, (value, bin_edges) in enumerate(zip(state, self.bins)):
+            index = np.digitize(value, bin_edges)
+            index = np.clip(index, 0, self.n_bins - 1)
+            discretized.append(int(index))
+        return tuple(discretized)
+
+    @property
+    def state_shape(self) -> Tuple[int, int, int, int]:
+        return (self.n_bins, self.n_bins, self.n_bins, self.n_bins)
 
 
 class handler(BaseHTTPRequestHandler):
@@ -48,8 +72,6 @@ class handler(BaseHTTPRequestHandler):
 
             # 이산화 실행
             discretizer = StateDiscretizer(n_bins=n_bins)
-            import numpy as np
-
             state = np.array([position, velocity, angle, angular_velocity])
             discretized = discretizer.discretize(state)
 
@@ -88,8 +110,6 @@ class handler(BaseHTTPRequestHandler):
 
             # 이산화 실행
             discretizer = StateDiscretizer(n_bins=n_bins)
-            import numpy as np
-
             state_array = np.array(state, dtype=float)
             discretized = discretizer.discretize(state_array)
 
