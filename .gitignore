@@ -10,3 +10,27 @@ results/
 # Virtual environments
 .venv/
 venv/
+
+# Node.js
+node_modules/
+.next/
+out/
+
+# Vercel
+.vercel
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# TypeScript
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
